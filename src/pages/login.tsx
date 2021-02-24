@@ -3,7 +3,10 @@
 import { gql, useMutation } from "@apollo/client";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { Button } from "../components/button";
 import { FormError } from "../components/form-error";
+import deatsLogo from "../images/deats.svg";
 import {
   loginMutation,
   loginMutationVariables,
@@ -25,7 +28,14 @@ interface ILoginForm {
 }
 
 export const Login = () => {
-  const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
+  const {
+    register,
+    getValues,
+    errors,
+    handleSubmit,
+    formState,
+  } = useForm<ILoginForm>({ mode: "onChange" });
+
   const onCompleted = (data: loginMutation) => {
     const {
       login: { ok, token },
@@ -55,12 +65,13 @@ export const Login = () => {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gray-800">
-      <div className="bg-white w-full max-w-lg pt-8 pb-7 rounded-lg text-center">
-        <h3 className="text-2xl text-gray-800">Log In</h3>
+    <div className="h-screen flex items-center flex-col mt-8 lg:mt-24 ">
+      <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
+        <img src={deatsLogo} alt="Deats" className="w-60 mb-5" />
+        <h4 className="w-full text-left text-3xl ml-1 mb-2">Welcome back...</h4>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid gap-2 mt-5 px-5"
+          className="grid gap-2 mt-5 w-full mb-5"
         >
           <input
             ref={register({
@@ -69,7 +80,7 @@ export const Login = () => {
             name="email"
             type="email"
             placeholder="Email"
-            className="input"
+            className="input transition-colors"
             required
           />
           {errors.email?.message && (
@@ -82,19 +93,27 @@ export const Login = () => {
             name="password"
             type="password"
             placeholder="Password"
-            className="input"
+            className="input transition-colors"
             required
           />
           {errors.password?.message && (
             <FormError errorMessage={errors.password?.message} />
           )}
-          <button className="btn mt-3">
-            {loading ? "Loading..." : "Log In"}
-          </button>
+          <Button
+            canClick={formState.isValid}
+            loading={loading}
+            actionText={"Log In"}
+          />
           {loginMutationResult?.login.error && (
             <FormError errorMessage={loginMutationResult.login.error} />
           )}
         </form>
+        <div>
+          New Here?{" "}
+          <Link to="/create-account" className="text-lime-600 hover:underline">
+            Create an account
+          </Link>
+        </div>
       </div>
     </div>
   );
