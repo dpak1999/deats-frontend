@@ -2,6 +2,7 @@
 
 import { gql, useMutation } from "@apollo/client";
 import React from "react";
+import { Helmet } from "react-helmet";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { Button } from "../components/button";
@@ -66,6 +67,9 @@ export const Login = () => {
 
   return (
     <div className="h-screen flex items-center flex-col mt-8 lg:mt-24 ">
+      <Helmet>
+        <title>Login | Deats</title>
+      </Helmet>
       <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
         <img src={deatsLogo} alt="Deats" className="w-60 mb-5" />
         <h4 className="w-full text-left text-3xl ml-1 mb-2">Welcome back...</h4>
