@@ -2,6 +2,7 @@
 
 import { gql, useApolloClient, useMutation } from "@apollo/client";
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { Button } from "../../components/button";
 import { useMe } from "../../hooks/useMe";
@@ -75,6 +76,9 @@ export const EditProfile = () => {
   };
   return (
     <div className="mt-52 flex flex-col justify-center items-center">
+      <Helmet>
+        <title>Edit account | Deats</title>
+      </Helmet>
       <h4 className="font-semibold text-2xl mb-3">Edit profile</h4>
       <form
         onSubmit={handleSubmit(onSubmit)}
