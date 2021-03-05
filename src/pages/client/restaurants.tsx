@@ -1,12 +1,12 @@
 /** @format */
 
+import React, { useState } from "react";
 import { gql, useQuery } from "@apollo/client";
-import { url } from "inspector";
-import React from "react";
 import {
   restaurantsPageQuery,
   restaurantsPageQueryVariables,
 } from "../../__generated__/restaurantsPageQuery";
+import { Restaurant } from "../../components/restaurant";
 
 const RESTAURANTS_QUERY = gql`
   query restaurantsPageQuery($input: RestaurantsInput!) {
@@ -41,10 +41,14 @@ const RESTAURANTS_QUERY = gql`
 `;
 
 export const Restaurants = () => {
-  const { data, loading, error } = useQuery<
+  const [page, setPage] = useState(1);
+  const { data, loading } = useQuery<
     restaurantsPageQuery,
     restaurantsPageQueryVariables
-  >(RESTAURANTS_QUERY, { variables: { input: { page: 1 } } });
+  >(RESTAURANTS_QUERY, { variables: { input: { page } } });
+
+  const onNextPageClick = () => setPage((current) => current + 1);
+  const onPreviousPageClick = () => setPage((current) => current - 1);
 
   return (
     <div>
@@ -56,7 +60,7 @@ export const Restaurants = () => {
         />
       </form>
       {!loading && (
-        <div className="max-w-screen-2xl mx-auto mt-8">
+        <div className="max-w-screen-2xl mb-20 mx-auto mt-8">
           <div className="flex justify-around max-w-sm mx-auto">
             {data?.allCategories.categories?.map((category) => (
               <div className="flex flex-col items-center cursor-pointer">
@@ -69,6 +73,37 @@ export const Restaurants = () => {
                 </span>
               </div>
             ))}
+          </div>
+          <div className="grid grid-cols-3 gap-x-5 gap-y-10 mt-10">
+            {data?.restaurants.results?.map((restaurant) => (
+              <Restaurant
+                id={restaurant.id + ""}
+                coverImage={restaurant.coverImage}
+                name={restaurant.name}
+                categoryName={restaurant.category?.name}
+              />
+            ))}
+          </div>
+          <div className="flex justify-center items-center mt-10">
+            {page > 1 && (
+              <button
+                onClick={onPreviousPageClick}
+                className="font-medium text-2xl mb-2 focus:outline-none"
+              >
+                &larr;
+              </button>
+            )}
+            <span className="mx-2">
+              Page {page} of {data?.restaurants.totalPages}
+            </span>
+            {page !== data?.restaurants.totalPages && (
+              <button
+                onClick={onNextPageClick}
+                className="font-medium text-2xl mb-2 focus:outline-none"
+              >
+                &rarr;
+              </button>
+            )}
           </div>
         </div>
       )}
