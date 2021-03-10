@@ -9,6 +9,8 @@ import {
 import { Restaurant } from "../../components/restaurant";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router";
+import { Helmet } from "react-helmet-async";
+import { RESTAURANT_FRAGMENT } from "../../fragments";
 
 const RESTAURANTS_QUERY = gql`
   query restaurantsPageQuery($input: RestaurantsInput!) {
@@ -29,17 +31,11 @@ const RESTAURANTS_QUERY = gql`
       totalPages
       totalResults
       results {
-        id
-        name
-        coverImage
-        category {
-          name
-        }
-        address
-        isPromoted
+        ...RestaurantParts
       }
     }
   }
+  ${RESTAURANT_FRAGMENT}
 `;
 
 interface IFormProps {
@@ -67,6 +63,9 @@ export const Restaurants = () => {
 
   return (
     <div>
+      <Helmet>
+        <title>Home | Deats</title>
+      </Helmet>
       <form
         className="bg-gray-800 w-full py-32 flex items-center justify-center"
         onSubmit={handleSubmit(onSearchSubmit)}

@@ -52,6 +52,7 @@ export const ConfirmEmail = () => {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [_, code] = window.location.href.split("code=");
     verifyEmail({
       variables: {
@@ -60,7 +61,7 @@ export const ConfirmEmail = () => {
         },
       },
     });
-  }, []);
+  }, [verifyEmail]);
 
   return (
     <div className="mt-52 flex flex-col items-center justify-center">
