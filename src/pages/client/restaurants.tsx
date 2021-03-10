@@ -7,6 +7,8 @@ import {
   restaurantsPageQueryVariables,
 } from "../../__generated__/restaurantsPageQuery";
 import { Restaurant } from "../../components/restaurant";
+import { useForm } from "react-hook-form";
+import { useHistory } from "react-router";
 
 const RESTAURANTS_QUERY = gql`
   query restaurantsPageQuery($input: RestaurantsInput!) {
@@ -40,6 +42,10 @@ const RESTAURANTS_QUERY = gql`
   }
 `;
 
+interface IFormProps {
+  searchTerm: string;
+}
+
 export const Restaurants = () => {
   const [page, setPage] = useState(1);
   const { data, loading } = useQuery<
@@ -49,12 +55,26 @@ export const Restaurants = () => {
 
   const onNextPageClick = () => setPage((current) => current + 1);
   const onPreviousPageClick = () => setPage((current) => current - 1);
+  const { register, handleSubmit, getValues } = useForm<IFormProps>();
+  const history = useHistory();
+  const onSearchSubmit = () => {
+    const { searchTerm } = getValues();
+    history.push({
+      pathname: "/search",
+      search: `?term=${searchTerm}`,
+    });
+  };
 
   return (
     <div>
-      <form className="bg-gray-800 w-full py-32 flex items-center justify-center">
+      <form
+        className="bg-gray-800 w-full py-32 flex items-center justify-center"
+        onSubmit={handleSubmit(onSearchSubmit)}
+      >
         <input
-          className="input w-3/12 border-0"
+          ref={register({ required: true, min: 3 })}
+          name="searchTerm"
+          className="input md:w-3/12 border-0 w-1/2"
           type="search"
           placeholder="Search restaurants..."
         />
@@ -63,7 +83,10 @@ export const Restaurants = () => {
         <div className="max-w-screen-2xl mb-20 mx-auto mt-8">
           <div className="flex justify-around max-w-sm mx-auto">
             {data?.allCategories.categories?.map((category) => (
-              <div className="flex flex-col items-center cursor-pointer">
+              <div
+                key={category.id}
+                className="flex flex-col items-center cursor-pointer"
+              >
                 <div
                   className="w-14 h-14 bg-cover rounded-full hover:bg-gray-200"
                   style={{ backgroundImage: `url(${category.coverImage})` }}
@@ -74,9 +97,10 @@ export const Restaurants = () => {
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-3 gap-x-5 gap-y-10 mt-10">
+          <div className="grid lg:grid-cols-3 gap-x-5 gap-y-10 mt-10 mx-3">
             {data?.restaurants.results?.map((restaurant) => (
               <Restaurant
+                key={restaurant.id}
                 id={restaurant.id + ""}
                 coverImage={restaurant.coverImage}
                 name={restaurant.name}
