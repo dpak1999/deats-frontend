@@ -38,5 +38,24 @@ export const Restaurant = () => {
       },
     }
   );
-  return <h1>Individual restaurant</h1>;
+  return (
+    <div>
+      <div
+        style={{
+          backgroundImage: `url(${data?.restaurant.restaurant?.coverImage})`,
+        }}
+        className="bg-gray-800 py-48 bg-cover bg-center"
+      >
+        <div className="bg-white w-3/12 py-6 pl-44">
+          <h4 className="text-4xl mb-2">{data?.restaurant.restaurant?.name}</h4>
+          <h5 className="capitalize text-sm font-light mb-2">
+            {data?.restaurant.restaurant?.category?.name}
+          </h5>
+          <h6 className="capitalize text-sm font-light">
+            {data?.restaurant.restaurant?.address}
+          </h6>
+        </div>
+      </div>
+    </div>
+  );
 };
