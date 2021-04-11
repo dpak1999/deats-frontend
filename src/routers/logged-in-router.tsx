@@ -12,6 +12,7 @@ import { Search } from "../pages/client/search";
 import { Category } from "../pages/client/category";
 import { Restaurant } from "../pages/client/restaurant";
 import { MyRestaurants } from "../pages/owner/my-restaurants";
+import { AddRestaurant } from "../pages/owner/add-restaurant";
 
 const clientRoutes = [
   {
@@ -43,7 +44,10 @@ const commonRoutes = [
   },
 ];
 
-const restaurantRoutes = [{ path: "/", component: <MyRestaurants /> }];
+const restaurantRoutes = [
+  { path: "/", component: <MyRestaurants /> },
+  { path: "/add-restaurant", component: <AddRestaurant /> },
+];
 
 const LoggedInRouter = () => {
   const { data, loading, error } = useMe();
@@ -60,18 +64,18 @@ const LoggedInRouter = () => {
       <Switch>
         {data.me.role === "Client" &&
           clientRoutes.map((route) => (
-            <Route key={route.path} path={route.path}>
+            <Route exact key={route.path} path={route.path}>
               {route.component}
             </Route>
           ))}
         {data.me.role === "Owner" &&
           restaurantRoutes.map((route) => (
-            <Route key={route.path} path={route.path}>
+            <Route exact key={route.path} path={route.path}>
               {route.component}
             </Route>
           ))}
         {commonRoutes.map((route) => (
-          <Route key={route.path} path={route.path}>
+          <Route exact key={route.path} path={route.path}>
             {route.component}
           </Route>
         ))}
