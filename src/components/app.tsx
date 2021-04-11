@@ -10,4 +10,3 @@ export const App = () => {
   const isLoggedIn = useReactiveVar(isLoggedInVar);
   return isLoggedIn ? <LoggedInRouter /> : <LoggedOutRouter />;
 };
-export default App;
