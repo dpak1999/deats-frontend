@@ -1,10 +1,11 @@
 /** @format */
 
-import { gql, useMutation } from "@apollo/client";
 import React from "react";
+import { gql, useMutation } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 import { Button } from "../../components/button";
+import { FormError } from "../../components/form-error";
 import { createRestaurant } from "../../__generated__/createRestaurant";
 
 const CREATE_RESTAURANT_MUTATION = gql`
@@ -20,6 +21,7 @@ interface IFormProps {
   name: string;
   address: string;
   categoryName: string;
+  coverImage: string;
 }
 
 export const AddRestaurant = () => {
@@ -28,51 +30,74 @@ export const AddRestaurant = () => {
     { loading, data },
   ] = useMutation<createRestaurant>(CREATE_RESTAURANT_MUTATION);
 
-  const {
-    register,
-    getValues,
-    formState,
-    errors,
-    handleSubmit,
-  } = useForm<IFormProps>({ mode: "onChange" });
+  const { register, getValues, formState, handleSubmit } = useForm<IFormProps>({
+    mode: "onChange",
+  });
 
   const onSubmit = () => {
-    console.log(getValues());
+    try {
+      const { address, categoryName, name, coverImage } = getValues();
+      createRestaurantMutation({
+        variables: {
+          input: {
+            name,
+            categoryName,
+            address,
+            coverImage,
+          },
+        },
+      });
+    } catch (error) {}
   };
   return (
-    <div className="container">
+    <div className="container h-screen flex items-center flex-col mt-8 lg:mt-24 ">
       <Helmet>
         <title>Create Restaurant | Deats</title>
       </Helmet>
-      <h1>Add Restaurant</h1>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input
-          className="input"
-          name="name"
-          placeholder="Name"
-          type="text"
-          ref={register({ required: "Name is required." })}
-        />
-        <input
-          className="input"
-          name="address"
-          placeholder="Address"
-          type="text"
-          ref={register({ required: "Address is required." })}
-        />
-        <input
-          className="input"
-          name="categoryName"
-          placeholder="Category"
-          type="text"
-          ref={register({ required: "Category is required." })}
-        />
-        <Button
-          loading={loading}
-          canClick={formState.isValid}
-          actionText="Create Restaurant"
-        ></Button>
-      </form>
+      <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
+        <h1 className="w-full text-center text-3xl">Add Restaurant</h1>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid gap-2 mt-5 w-full mb-5"
+        >
+          <input
+            className="input"
+            name="name"
+            placeholder="Name"
+            type="text"
+            ref={register({ required: "Name is required." })}
+          />
+          <input
+            className="input"
+            name="address"
+            placeholder="Address"
+            type="text"
+            ref={register({ required: "Address is required." })}
+          />
+          <input
+            className="input"
+            name="categoryName"
+            placeholder="Category"
+            type="text"
+            ref={register({ required: "Category is required." })}
+          />
+          <input
+            className="input"
+            name="coverImage"
+            placeholder="Image URL"
+            type="text"
+            ref={register({ required: "Image is required." })}
+          />
+          <Button
+            loading={loading}
+            canClick={formState.isValid}
+            actionText="Create Restaurant"
+          ></Button>
+          {data?.createRestaurant?.error && (
+            <FormError errorMessage={data.createRestaurant.error} />
+          )}
+        </form>
+      </div>
     </div>
   );
 };
