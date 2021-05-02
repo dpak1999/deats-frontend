@@ -1,18 +1,20 @@
 /** @format */
 
-import React from "react";
-import { gql, useMutation } from "@apollo/client";
+import { gql, useApolloClient, useMutation } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
+import { MY_RESTAURANTS_QUERY } from "./my-restaurants";
 import { Button } from "../../components/button";
 import { FormError } from "../../components/form-error";
 import { createRestaurant } from "../../__generated__/createRestaurant";
+import { useHistory } from "react-router-dom";
 
 const CREATE_RESTAURANT_MUTATION = gql`
   mutation createRestaurant($input: CreateRestaurantInput!) {
     createRestaurant(input: $input) {
       ok
       error
+      restaurantId
     }
   }
 `;
@@ -25,10 +27,49 @@ interface IFormProps {
 }
 
 export const AddRestaurant = () => {
+  const client = useApolloClient();
+  const history = useHistory();
+  const onCompleted = (data: createRestaurant) => {
+    const {
+      createRestaurant: { ok, restaurantId },
+    } = data;
+    if (ok) {
+      const { address, categoryName, name, coverImage } = getValues();
+      const queryResult = client.readQuery({ query: MY_RESTAURANTS_QUERY });
+      console.log(queryResult);
+      client.writeQuery({
+        query: MY_RESTAURANTS_QUERY,
+        data: {
+          myRestaurants: {
+            ...queryResult?.myRestaurants,
+            restaurants: [
+              {
+                address,
+                category: {
+                  name: categoryName,
+                  __typename: "Category",
+                },
+                coverImage,
+                id: restaurantId,
+                isPromoted: false,
+                name,
+                __typename: "Restaurant",
+              },
+              ...queryResult.myRestaurants.restaurants,
+            ],
+          },
+        },
+      });
+      history.push("/");
+    }
+  };
+
   const [
     createRestaurantMutation,
-    { loading, data },
-  ] = useMutation<createRestaurant>(CREATE_RESTAURANT_MUTATION);
+    { data, loading },
+  ] = useMutation<createRestaurant>(CREATE_RESTAURANT_MUTATION, {
+    onCompleted,
+  });
 
   const { register, getValues, formState, handleSubmit } = useForm<IFormProps>({
     mode: "onChange",

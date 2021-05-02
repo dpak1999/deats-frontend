@@ -1,4 +1,9 @@
-/* tslint:disable */
+/**
+ * /* tslint:disable
+ *
+ * @format
+ */
+
 /* eslint-disable */
 // @generated
 // This file was automatically generated and should not be edited.
@@ -13,6 +18,7 @@ export interface createRestaurant_createRestaurant {
   __typename: "CreateRestaurantOutput";
   ok: boolean;
   error: string | null;
+  restaurantId: number;
 }
 
 export interface createRestaurant {
