@@ -2,7 +2,7 @@
 
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
-import { RESTAURANT_FRAGMENT } from "../../fragments";
+import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
 import {
   myRestaurant,
   myRestaurantVariables,
@@ -15,10 +15,14 @@ const MY_RESTAURANT_QUERY = gql`
       error
       restaurant {
         ...RestaurantParts
+        menu {
+          ...DishParts
+        }
       }
     }
   }
   ${RESTAURANT_FRAGMENT}
+  ${DISH_FRAGMENT}
 `;
 
 interface IParams {
@@ -47,8 +51,13 @@ export const MyRestaurant = () => {
           Add Dish &rarr;
         </Link>
         <Link to={``} className="text-white bg-lime-700 py-3 px-10">
-          Buy Promottion &rarr;
+          Buy Promotion &rarr;
         </Link>
+      </div>
+      <div className="mt-10 container">
+        {data?.myRestaurant.restaurant?.menu.length === 0 ? (
+          <h4 className="text-xl mb-5">You have no Dishes. Please add one</h4>
+        ) : null}
       </div>
     </div>
   );
