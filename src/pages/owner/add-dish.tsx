@@ -29,6 +29,7 @@ interface IForm {
   name: string;
   price: string;
   description: string;
+  [key: string]: string;
 }
 
 export const AddDish = () => {
@@ -57,36 +58,39 @@ export const AddDish = () => {
 
   const onSubmit = () => {
     const { description, name, price, ...rest } = getValues();
-    // createDishMutation({
-    //   variables: {
-    //     input: {
-    //       name,
-    //       price: +price,
-    //       description,
-    //       restaurantId: +restaurantId,
-    //     },
-    //   },
-    // });
-    // history.goBack();
-    console.log(rest);
+    const optionsObject = optionsNumber.map((theId) => ({
+      name: rest[`${theId}-optionName`],
+      extra: +rest[`${theId}-optionExtra`],
+    }));
+
+    createDishMutation({
+      variables: {
+        input: {
+          name,
+          price: +price,
+          description,
+          restaurantId: +restaurantId,
+          options: optionsObject,
+        },
+      },
+    });
+    history.goBack();
   };
 
-  const [optionsNumber, setOptionsNumber] = useState(0);
+  const [optionsNumber, setOptionsNumber] = useState<number[]>([]);
 
   const onAddOptionClick = () => {
-    setOptionsNumber((current) => current + 1);
+    setOptionsNumber((current) => [Date.now(), ...current]);
   };
 
   const onDeleteClick = (idToDelete: number) => {
-    setOptionsNumber((current) => current - 1);
-    // @ts-ignore
+    setOptionsNumber((current) => current.filter((id) => id !== idToDelete));
     setValue(`${idToDelete}-optionName`, "");
-    // @ts-ignore
     setValue(`${idToDelete}-optionExtra`, "");
   };
 
   return (
-    <div className="container flex flex-col items-center mt-52">
+    <div className="container flex flex-col items-center mt-44">
       <Helmet>
         <title>Add Dish | Deats</title>
       </Helmet>
@@ -117,7 +121,7 @@ export const AddDish = () => {
           placeholder="Description"
           ref={register({ required: "Descripton is required" })}
         />
-        <div className="my-10">
+        <div className="my-4">
           <h4 className="font-medium mb-3 text-lg">Dish Options</h4>
           <span
             onClick={onAddOptionClick}
@@ -125,25 +129,30 @@ export const AddDish = () => {
           >
             Add Dish Option
           </span>
-          {optionsNumber !== 0 &&
-            Array.from(new Array(optionsNumber)).map((_, index) => (
-              <div key={index} className="mt-5">
+          {optionsNumber.length !== 0 &&
+            optionsNumber.map((id) => (
+              <div key={id} className="mt-5">
                 <input
                   ref={register}
-                  name={`${index}-optionName`}
-                  className="py-2 px-4 mr-3 focus:outline-none focus:border-gray-600 border-2"
+                  name={`${id}-optionName`}
+                  className=" py-2 px-4  mr-3 focus:outline-none focus:border-gray-600 border-2 w-40"
                   type="text"
                   placeholder="Option Name"
                 />
                 <input
                   ref={register}
-                  name={`${index}-optionExtra`}
-                  className="py-2 px-4 focus:outline-none focus:border-gray-600 border-2"
+                  name={`${id}-optionExtra`}
+                  className="py-2 px-4 focus:outline-none focus:border-gray-600 border-2 w-40"
                   type="number"
                   min={0}
                   placeholder="Price"
                 />
-                <span onClick={() => onDeleteClick(index)}>Delete Option</span>
+                <span
+                  className="cursor-pointer text-white bg-red-500 py-3 px-4 ml-3 mt-5"
+                  onClick={() => onDeleteClick(id)}
+                >
+                  Delete Option
+                </span>
               </div>
             ))}
         </div>
