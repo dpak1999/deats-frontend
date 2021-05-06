@@ -29,6 +29,7 @@ interface IForm {
   name: string;
   price: string;
   description: string;
+  photo: string;
   [key: string]: string;
 }
 
@@ -57,7 +58,7 @@ export const AddDish = () => {
   });
 
   const onSubmit = () => {
-    const { description, name, price, ...rest } = getValues();
+    const { description, name, price, photo, ...rest } = getValues();
     const optionsObject = optionsNumber.map((theId) => ({
       name: rest[`${theId}-optionName`],
       extra: +rest[`${theId}-optionExtra`],
@@ -67,6 +68,7 @@ export const AddDish = () => {
       variables: {
         input: {
           name,
+          photo,
           price: +price,
           description,
           restaurantId: +restaurantId,
@@ -120,6 +122,13 @@ export const AddDish = () => {
           name="description"
           placeholder="Description"
           ref={register({ required: "Descripton is required" })}
+        />
+        <input
+          type="text"
+          className="input"
+          name="photo"
+          placeholder="Image URL"
+          ref={register({ required: "Image is required" })}
         />
         <div className="my-4">
           <h4 className="font-medium mb-3 text-lg">Dish Options</h4>
