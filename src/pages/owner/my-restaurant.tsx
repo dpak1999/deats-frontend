@@ -2,6 +2,7 @@
 
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
+import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
 import {
   myRestaurant,
@@ -60,7 +61,18 @@ export const MyRestaurant = () => {
       <div className="mt-10 container">
         {data?.myRestaurant.restaurant?.menu.length === 0 ? (
           <h4 className="text-xl mb-5">You have no Dishes. Please add one</h4>
-        ) : null}
+        ) : (
+          <div className="grid mt-16 gap-x-5 gap-y-10 md:grid-cols-3">
+            {data?.myRestaurant.restaurant?.menu.map((dish) => (
+              <Dish
+                name={dish.name}
+                description={dish.description}
+                photo={dish.photo}
+                price={dish.price}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
