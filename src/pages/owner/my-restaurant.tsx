@@ -2,6 +2,7 @@
 
 import { gql, useQuery } from "@apollo/client";
 import { Link, useParams } from "react-router-dom";
+import { VictoryAxis, VictoryBar, VictoryChart } from "victory";
 import { Dish } from "../../components/dish";
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
 import {
@@ -73,6 +74,28 @@ export const MyRestaurant = () => {
             ))}
           </div>
         )}
+      </div>
+      <div className="mt-20 mb-20">
+        <h4 className="text-center text-2xl font-medium">Sales</h4>
+        <div className="max-w-lg w-full mx-auto">
+          <VictoryChart domainPadding={30}>
+            <VictoryAxis
+              dependentAxis
+              label="Amount"
+              tickValues={[20, 30, 40, 50, 60]}
+            />
+            <VictoryAxis label="Days" />
+            <VictoryBar
+              data={[
+                { x: 10, y: 20 },
+                { x: 30, y: 40 },
+                { x: 20, y: 50 },
+                { x: 50, y: 20 },
+                { x: 40, y: 90 },
+              ]}
+            />
+          </VictoryChart>
+        </div>
       </div>
     </div>
   );
