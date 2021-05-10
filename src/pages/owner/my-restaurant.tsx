@@ -1,6 +1,7 @@
 /** @format */
 
 import { gql, useQuery } from "@apollo/client";
+import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
 import {
   VictoryAxis,
@@ -16,6 +17,7 @@ import {
   ORDERS_FRAGMENT,
   RESTAURANT_FRAGMENT,
 } from "../../fragments";
+import { useMe } from "../../hooks/useMe";
 import {
   myRestaurant,
   myRestaurantVariables,
@@ -53,8 +55,27 @@ export const MyRestaurant = () => {
     { variables: { input: { id: +id } } }
   );
 
+  const { data: userData } = useMe();
+  const triggerPaddle = () => {
+    if (userData?.me.email) {
+      // @ts-ignore
+      window.Paddle.Setup({ vendor: 130757 });
+      // @ts-ignore
+      window.Paddle.Checkout.open({
+        product: 653741,
+        email: userData.me.email,
+      });
+    }
+  };
+
   return (
     <div>
+      <Helmet>
+        <title>
+          {data?.myRestaurant.restaurant?.name || "Loading..."} | Deats
+        </title>
+        <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+      </Helmet>
       <div
         className="bg-gray-700 py-28 bg-center bg-cover container"
         style={{
@@ -71,9 +92,12 @@ export const MyRestaurant = () => {
         >
           Add Dish &rarr;
         </Link>
-        <Link to={``} className="text-white bg-lime-700 py-3 px-10">
+        <span
+          onClick={triggerPaddle}
+          className="cursor-pointer text-white bg-lime-700 py-3 px-10"
+        >
           Buy Promotion &rarr;
-        </Link>
+        </span>
       </div>
       <div className="mt-10 container">
         {data?.myRestaurant.restaurant?.menu.length === 0 ? (
