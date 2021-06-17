@@ -1,6 +1,6 @@
 /** @format */
 
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -18,6 +18,10 @@ import {
   RESTAURANT_FRAGMENT,
 } from "../../fragments";
 import { useMe } from "../../hooks/useMe";
+import {
+  createPayment,
+  createPaymentVariables,
+} from "../../__generated__/createPayment";
 import {
   myRestaurant,
   myRestaurantVariables,
@@ -44,6 +48,15 @@ export const MY_RESTAURANT_QUERY = gql`
   ${ORDERS_FRAGMENT}
 `;
 
+const CREATE_PAYMENT_MUTATION = gql`
+  mutation createPayment($input: CreatePaymentInput!) {
+    createPayment(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 interface IParams {
   id: string;
 }
@@ -55,6 +68,16 @@ export const MyRestaurant = () => {
     { variables: { input: { id: +id } } }
   );
 
+  const onCompleted = (data: createPayment) => {
+    if (data.createPayment.ok) {
+      alert("Your restaurant is being promoted");
+    }
+  };
+  const [createPaymentMutation, { loading }] = useMutation<
+    createPayment,
+    createPaymentVariables
+  >(CREATE_PAYMENT_MUTATION, { onCompleted });
+
   const { data: userData } = useMe();
   const triggerPaddle = () => {
     if (userData?.me.email) {
@@ -64,6 +87,16 @@ export const MyRestaurant = () => {
       window.Paddle.Checkout.open({
         product: 653741,
         email: userData.me.email,
+        successCallback: (data: any) => {
+          createPaymentMutation({
+            variables: {
+              input: {
+                restaurantId: +id,
+                transactionId: data.checkout.id,
+              },
+            },
+          });
+        },
       });
     }
   };
