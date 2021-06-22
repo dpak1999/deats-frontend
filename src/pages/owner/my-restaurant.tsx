@@ -1,4 +1,4 @@
-/** @format */
+ /** @format */
 
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { Helmet } from "react-helmet-async";
@@ -79,6 +79,7 @@ export const MyRestaurant = () => {
   >(CREATE_PAYMENT_MUTATION, { onCompleted });
 
   const { data: userData } = useMe();
+
   const triggerPaddle = () => {
     if (userData?.me.email) {
       // @ts-ignore
