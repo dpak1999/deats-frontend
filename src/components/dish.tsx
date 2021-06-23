@@ -4,24 +4,51 @@ import React from "react";
 import { restaurant_restaurant_restaurant_menu_options } from "../__generated__/restaurant";
 
 interface IDishProps {
+  id?: number;
   description: string;
   name: string;
   price: number;
   photo: string | null;
+  orderStarted?: boolean;
   isCustomer?: boolean;
   options?: restaurant_restaurant_restaurant_menu_options[] | null;
+  addItemToOrder?: (dishId: number) => void;
+  isSelected?: boolean;
+  removeFromOrder?: (dishId: number) => void;
 }
 
 export const Dish: React.FC<IDishProps> = ({
+  id = 0,
   name,
   description,
   photo,
   price,
   isCustomer = false,
+  orderStarted = false,
+  addItemToOrder,
   options,
+  isSelected,
+  removeFromOrder,
 }) => {
+  const onClick = () => {
+    if (orderStarted) {
+      if (!isSelected && addItemToOrder) {
+        return addItemToOrder(id);
+      }
+
+      if (isSelected && removeFromOrder) {
+        return removeFromOrder(id);
+      }
+    }
+  };
+
   return (
-    <div className="px-8 py-4 border hover:border-gray-800 cursor-pointer transition-all mb6">
+    <div
+      onClick={onClick}
+      className={`px-8 py-4 border cursor-pointer transition-all mb-6 ${
+        isSelected ? "border-black bg-green-100" : "hover:border-gray-800"
+      }`}
+    >
       <div className="flex flex-col">
         <div
           style={{ backgroundImage: `url(${photo})` }}

@@ -15,4 +15,8 @@
   @apply text-lime-600 hover:underline;
 }
 
+.btn {
+  @apply text-lg font-medium text-white py-4 focus:outline-none transition-colors bg-lime-600 hover:bg-lime-800;
+}
+
 @tailwind utilities;
