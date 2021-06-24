@@ -11,6 +11,7 @@ import {
 import { Dish } from "../../components/dish";
 import { useState } from "react";
 import { CreateOrderItemInput } from "../../__generated__/globalTypes";
+import { DishOption } from "../../components/dish-option";
 
 const RESTAURANT_QUERY = gql`
   query restaurant($input: RestaurantInput!) {
@@ -62,21 +63,83 @@ export const Restaurant = () => {
     setOrderStarted(true);
   };
 
+  const getItem = (dishId: number) => {
+    return orderItems.find((order) => order.dishId === dishId);
+  };
+
   const isSelected = (dishId: number) => {
-    return Boolean(orderItems.find((order) => order.dishId === dishId));
+    return Boolean(getItem(dishId));
   };
 
   const addItemToOrder = (dishId: number) => {
     if (isSelected(dishId)) {
       return;
     }
-    setOrderItems((current) => [...current, { dishId, options: null }]);
+    setOrderItems((current) => [...current, { dishId, options: [] }]);
   };
 
   const removeFromOrder = (dishId: number) => {
     setOrderItems((current) =>
       current.filter((dish) => dish.dishId !== dishId)
     );
+  };
+
+  const addOptionToItem = (dishId: number, optionName: string) => {
+    if (!isSelected(dishId)) {
+      return;
+    }
+    const oldItem = getItem(dishId);
+
+    if (oldItem) {
+      const hasOption = Boolean(
+        oldItem.options?.find((item) => item.name === optionName)
+      );
+
+      if (!hasOption) {
+        removeFromOrder(dishId);
+        setOrderItems((current) => [
+          ...current,
+          { dishId, options: [{ name: optionName }, ...oldItem.options!] },
+        ]);
+      }
+    }
+  };
+
+  const getOptionFromItem = (
+    item: CreateOrderItemInput,
+    optionName: string
+  ) => {
+    return item.options?.find((option) => option.name === optionName);
+  };
+
+  const isOptionSelected = (dishId: number, optionName: string) => {
+    const item = getItem(dishId);
+    if (item) {
+      return Boolean(getOptionFromItem(item, optionName));
+    }
+    return false;
+  };
+
+  const removeOptionFromItem = (dishId: number, optionName: string) => {
+    if (!isSelected(dishId)) {
+      return;
+    }
+
+    const oldItem = getItem(dishId);
+
+    if (oldItem) {
+      removeFromOrder(dishId);
+      setOrderItems((current) => [
+        {
+          ...current,
+          dishId,
+          options: oldItem.options?.filter(
+            (option) => option.name !== optionName
+          ),
+        },
+      ]);
+      return;
+    }
   };
 
   console.log(orderItems);
@@ -129,7 +192,19 @@ export const Restaurant = () => {
               options={dish.options}
               addItemToOrder={addItemToOrder}
               removeFromOrder={removeFromOrder}
-            />
+            >
+              {dish.options?.map((option, index) => (
+                <DishOption
+                  key={index}
+                  dishId={dish.id}
+                  isSelected={isOptionSelected(dish.id, option.name)}
+                  name={option.name}
+                  extra={option.extra}
+                  addOptionToItem={addOptionToItem}
+                  removeOptionFromItem={removeOptionFromItem}
+                />
+              ))}
+            </Dish>
           ))}
         </div>
       </div>
