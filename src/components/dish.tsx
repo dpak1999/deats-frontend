@@ -46,7 +46,7 @@ export const Dish: React.FC<IDishProps> = ({
   return (
     <div
       className={`px-8 py-4 border cursor-pointer transition-all mb-6 ${
-        isSelected ? "border-black bg-green-100" : "hover:border-gray-800"
+        isSelected ? "border-black" : "hover:border-gray-800"
       }`}
     >
       <div className="flex flex-col">
@@ -58,8 +58,13 @@ export const Dish: React.FC<IDishProps> = ({
           <h3 className="text-lg font-medium">
             {name}{" "}
             {orderStarted && (
-              <button onClick={onClick}>
-                {isSelected ? "Remove from order" : "Add to order"}
+              <button
+                onClick={onClick}
+                className={`px-3 py-1 rounded text-white${
+                  isSelected ? " bg-red-500" : " bg-lime-600"
+                }`}
+              >
+                {isSelected ? "Remove" : "Add"}
               </button>
             )}
           </h3>

@@ -1,7 +1,7 @@
 /** @format */
 
 import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useParams } from "react-router";
 import { DISH_FRAGMENT, RESTAURANT_FRAGMENT } from "../../fragments";
 import {
@@ -12,6 +12,12 @@ import { Dish } from "../../components/dish";
 import { useState } from "react";
 import { CreateOrderItemInput } from "../../__generated__/globalTypes";
 import { DishOption } from "../../components/dish-option";
+import { Helmet } from "react-helmet-async";
+import {
+  createOrder,
+  createOrderVariables,
+} from "../../__generated__/createOrder";
+import { useHistory } from "react-router-dom";
 
 const RESTAURANT_QUERY = gql`
   query restaurant($input: RestaurantInput!) {
@@ -35,6 +41,7 @@ const CREATE_ORDER_MUTATION = gql`
     createOrder(input: $input) {
       ok
       error
+      orderId
     }
   }
 `;
@@ -142,10 +149,50 @@ export const Restaurant = () => {
     }
   };
 
+  const triggerCancelOrder = () => {
+    setOrderStarted(false);
+    setOrderItems([]);
+  };
+
+  const history = useHistory();
+  const onCompleted = (data: createOrder) => {
+    const {
+      createOrder: { ok, orderId },
+    } = data;
+    if (data.createOrder.ok) {
+      history.push(`/orders/${orderId}`);
+    }
+  };
+
+  const [createOrderMutation, { loading: placingOrder }] = useMutation<
+    createOrder,
+    createOrderVariables
+  >(CREATE_ORDER_MUTATION, { onCompleted });
+  const triggerConfirmOrder = () => {
+    if (orderItems.length === 0) {
+      alert("Cant place empty order");
+      return;
+    }
+    const ok = window.confirm("You are about to place an order");
+    if (ok) {
+      createOrderMutation({
+        variables: {
+          input: {
+            restaurantId: +params.id,
+            items: orderItems,
+          },
+        },
+      });
+    }
+  };
+
   console.log(orderItems);
 
   return (
     <div>
+      <Helmet>
+        <title>{data?.restaurant.restaurant?.name || ""} | Deats</title>
+      </Helmet>
       <div
         style={{
           backgroundImage: `url(${data?.restaurant.restaurant?.coverImage})`,
@@ -164,19 +211,26 @@ export const Restaurant = () => {
       </div>
 
       <div className="container pb-32 mt-20 flex flex-col items-end">
-        <button
-          disabled={orderStarted}
-          onClick={triggerStartOrder}
-          className={`btn px-10 ${
-            orderStarted
-              ? "cursor-not-allowed bg-gray-500 hover:bg-gray-500"
-              : ""
-          }`}
-        >
-          {orderStarted
-            ? "Click on dishes that you want to buy"
-            : "Start Ordering"}
-        </button>
+        {!orderStarted && (
+          <button onClick={triggerStartOrder} className="btn px-10">
+            Start Ordering
+          </button>
+        )}
+        {orderStarted && (
+          <div className="flex items-center">
+            <button onClick={triggerConfirmOrder} className="btn px-10 mr-3">
+              Confirm Order
+            </button>
+
+            <button
+              onClick={triggerCancelOrder}
+              className="btn px-10 bg-red-500 text-white hover:bg-red-500"
+            >
+              Cancel Order
+            </button>
+          </div>
+        )}
+
         <div className="w-full grid mt-16 gap-x-5 gap-y-10 md:grid-cols-3 mb-14">
           {data?.restaurant.restaurant?.menu.map((dish, index) => (
             <Dish

@@ -30,8 +30,10 @@ export const DishOption: React.FC<IDishOptionProps> = ({
   return (
     <span
       onClick={onClick}
-      className={`flex items-center ${
-        isSelected ? "border border-gray-800" : ""
+      className={`flex items-center py-1 px-2 rounded-sm ${
+        isSelected
+          ? "w-max bg-lime-600 text-white mb-2"
+          : "border rounded-md border-black w-max mb-2"
       }`}
     >
       <h6 className="mr-2">{name}</h6>
