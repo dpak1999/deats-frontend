@@ -2,6 +2,7 @@
 
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
 import { getOrder, getOrderVariables } from "../__generated__/getOrder";
 
@@ -40,6 +41,9 @@ export const Order = () => {
   console.log(data);
   return (
     <div className="container mt-32 flex justify-center">
+      <Helmet>
+        <title>Order #{params.id} | Deats</title>
+      </Helmet>
       <div className="border w-full border-gray-800 flex flex-col max-w-screen-sm justify-center">
         <h4 className="w-full py-5 bg-gray-800 text-white text-center text-xl">
           Order #{params.id}
