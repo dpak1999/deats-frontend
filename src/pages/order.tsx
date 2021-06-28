@@ -116,10 +116,10 @@ export const Order = () => {
           {userData?.me.role === "Owner" && (
             <>
               {data?.getOrder.order?.status === "Pending" && (
-                <button>Accept Order</button>
+                <button className="btn">Accept Order</button>
               )}
               {data?.getOrder.order?.status === "Cooking" && (
-                <button>Cooked</button>
+                <button className="btn">Cooked</button>
               )}
             </>
           )}
