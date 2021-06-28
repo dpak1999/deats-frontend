@@ -2,9 +2,13 @@
 
 import { gql, useQuery } from "@apollo/client";
 import React from "react";
+import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router";
+import { FULL_ORDER_FRAGMENT } from "../fragments";
+import { useMe } from "../hooks/useMe";
 import { getOrder, getOrderVariables } from "../__generated__/getOrder";
+import { orderUpdates } from "../__generated__/orderUpdates";
 
 const GET_ORDER = gql`
   query getOrder($input: GetOrderInput!) {
@@ -12,21 +16,20 @@ const GET_ORDER = gql`
       ok
       error
       order {
-        id
-        status
-        total
-        driver {
-          email
-        }
-        customer {
-          email
-        }
-        restaurant {
-          name
-        }
+        ...FullOrderParts
       }
     }
   }
+  ${FULL_ORDER_FRAGMENT}
+`;
+
+const ORDER_SUBSCRIPTION = gql`
+  subscription orderUpdates($input: OrderUpdatesInput!) {
+    orderUpdates(input: $input) {
+      ...FullOrderParts
+    }
+  }
+  ${FULL_ORDER_FRAGMENT}
 `;
 
 interface IParams {
@@ -35,10 +38,45 @@ interface IParams {
 
 export const Order = () => {
   const params = useParams<IParams>();
-  const { data } = useQuery<getOrder, getOrderVariables>(GET_ORDER, {
-    variables: { input: { id: +params.id } },
-  });
-  console.log(data);
+  const { data: userData } = useMe();
+  const { data, subscribeToMore } = useQuery<getOrder, getOrderVariables>(
+    GET_ORDER,
+    {
+      variables: { input: { id: +params.id } },
+    }
+  );
+
+  useEffect(() => {
+    if (data?.getOrder.ok) {
+      subscribeToMore({
+        document: ORDER_SUBSCRIPTION,
+        variables: {
+          input: {
+            id: +params.id,
+          },
+        },
+        updateQuery: (
+          prev,
+          {
+            subscriptionData: { data },
+          }: { subscriptionData: { data: orderUpdates } }
+        ) => {
+          if (!data) return prev;
+
+          return {
+            getOrder: {
+              ...prev.getOrder,
+              order: {
+                ...data.orderUpdates,
+              },
+            },
+          };
+        },
+      });
+    }
+  }, [data]);
+
+  // console.log(subscriptionData);
   return (
     <div className="container mt-32 flex justify-center">
       <Helmet>
@@ -70,9 +108,21 @@ export const Order = () => {
               {data?.getOrder.order?.driver?.email}
             </span>
           </div>
-          <span className=" text-center mt-5 mb-3  text-2xl text-lime-600">
-            Status: {data?.getOrder.order?.status}
-          </span>
+          {userData?.me.role === "Client" && (
+            <span className=" text-center mt-5 mb-3  text-2xl text-lime-600">
+              Status: {data?.getOrder.order?.status}
+            </span>
+          )}
+          {userData?.me.role === "Owner" && (
+            <>
+              {data?.getOrder.order?.status === "Pending" && (
+                <button>Accept Order</button>
+              )}
+              {data?.getOrder.order?.status === "Cooking" && (
+                <button>Cooked</button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
