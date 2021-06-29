@@ -152,10 +152,40 @@ export const Order = () => {
               )}
               {data?.getOrder.order?.status !== OrderStatus.Cooking &&
                 data?.getOrder.order?.status !== OrderStatus.Pending && (
-                  <span className=" text-center mt-5 mb-3  text-2xl text-lime-600">
+                  <span className=" text-center mt-5 text-2xl text-lime-600">
                     Status: {data?.getOrder.order?.status}
                   </span>
                 )}
+              {data?.getOrder.order?.status === OrderStatus.Delivered && (
+                <span className=" text-center mb-3 text-2xl text-lime-600">
+                  Hope you enjoy your food
+                </span>
+              )}
+            </>
+          )}
+          {userData?.me.role === UserRole.Delivery && (
+            <>
+              {data?.getOrder.order?.status === OrderStatus.Cooked && (
+                <button
+                  onClick={() => onButtonClick(OrderStatus.PickedUp)}
+                  className="btn"
+                >
+                  Picked Up
+                </button>
+              )}
+              {data?.getOrder.order?.status === OrderStatus.PickedUp && (
+                <button
+                  onClick={() => onButtonClick(OrderStatus.Delivered)}
+                  className="btn"
+                >
+                  Order delivered
+                </button>
+              )}
+              {data?.getOrder.order?.status === OrderStatus.Delivered && (
+                <span className=" text-center mt-5 mb-3  text-2xl text-lime-600">
+                  Thank you
+                </span>
+              )}
             </>
           )}
         </div>

@@ -76,51 +76,45 @@ export const Dashboard = () => {
     COOKED_ORDERS_SUBSCRIPTION
   );
 
+  const makeRoute = () => {
+    if (map) {
+      const directionsService = new google.maps.DirectionsService();
+      const directionsRenderer = new google.maps.DirectionsRenderer({
+        polylineOptions: {
+          strokeColor: "#000",
+          strokeOpacity: 1,
+          strokeWeight: 3,
+        },
+      });
+
+      directionsRenderer.setMap(map);
+      directionsService.route(
+        {
+          origin: {
+            location: new google.maps.LatLng(
+              driverCoords.lat,
+              driverCoords.lng
+            ),
+          },
+          destination: {
+            location: new google.maps.LatLng(
+              driverCoords.lat + 0.02,
+              driverCoords.lng + 0.02
+            ),
+          },
+          travelMode: google.maps.TravelMode.DRIVING,
+        },
+        (result) => {
+          directionsRenderer.setDirections(result);
+        }
+      );
+    }
+  };
   useEffect(() => {
-    const makeRoute = () => {
-      if (map) {
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer({
-          polylineOptions: {
-            strokeColor: "#000",
-            strokeOpacity: 1,
-            strokeWeight: 3,
-          },
-        });
-
-        directionsRenderer.setMap(map);
-        directionsService.route(
-          {
-            origin: {
-              location: new google.maps.LatLng(
-                driverCoords.lat,
-                driverCoords.lng
-              ),
-            },
-            destination: {
-              location: new google.maps.LatLng(
-                driverCoords.lat + 0.02,
-                driverCoords.lng + 0.02
-              ),
-            },
-            travelMode: google.maps.TravelMode.DRIVING,
-          },
-          (result) => {
-            directionsRenderer.setDirections(result);
-          }
-        );
-      }
-    };
-
     if (cookedOrdersData?.cookedOrders.id) {
       makeRoute();
     }
-  }, [
-    cookedOrdersData?.cookedOrders.id,
-    map,
-    driverCoords.lat,
-    driverCoords.lng,
-  ]);
+  }, [cookedOrdersData]);
 
   const history = useHistory();
   const onCompleted = (data: takeOrder) => {
